@@ -1,0 +1,162 @@
+[
+  {
+    "id": "infra-001",
+    "title": "项目骨架与配置管理",
+    "description": "创建Rust项目基础结构，包括Cargo.toml配置、目录组织、配置文件加载与管理、日志系统初始化。",
+    "status": "pending",
+    "dependencies": [],
+    "tags": ["基础设施", "配置", "日志"]
+  },
+  {
+    "id": "cli-001",
+    "title": "CLI命令解析",
+    "description": "实现命令行参数解析，支持子命令结构，集成clap库处理用户输入。",
+    "status": "pending",
+    "dependencies": ["infra-001"],
+    "tags": ["CLI", "用户交互"]
+  },
+  {
+    "id": "cli-002",
+    "title": "TUI交互界面",
+    "description": "基于ratatui构建终端用户界面，实现交互式命令输入、输出展示、进度显示等功能。",
+    "status": "pending",
+    "dependencies": ["cli-001"],
+    "tags": ["TUI", "用户交互"]
+  },
+  {
+    "id": "harness-001",
+    "title": "功能清单管理器",
+    "description": "实现harness/features.json的读取、写入、解析，功能项的增删改查接口。",
+    "status": "pending",
+    "dependencies": ["infra-001"],
+    "tags": ["Harness核心", "功能管理"]
+  },
+  {
+    "id": "harness-002",
+    "title": "进度跟踪器",
+    "description": "实现harness/progress.md的更新机制，记录当前完成的功能、阻塞项、下一待办。",
+    "status": "pending",
+    "dependencies": ["harness-001"],
+    "tags": ["Harness核心", "进度跟踪"]
+  },
+  {
+    "id": "harness-003",
+    "title": "交接报告生成器",
+    "description": "实现harness/handoff.md的自动生成，包含已完成工作、下一步计划、技术决策说明。",
+    "status": "pending",
+    "dependencies": ["harness-001", "harness-002"],
+    "tags": ["Harness核心", "交接报告"]
+  },
+  {
+    "id": "harness-004",
+    "title": "双代理调度器",
+    "description": "实现初始化代理与编码代理的协同调度机制，基于功能清单驱动开发流程。",
+    "status": "pending",
+    "dependencies": ["harness-001", "harness-002", "harness-003"],
+    "tags": ["Harness核心", "代理调度"]
+  },
+  {
+    "id": "llm-001",
+    "title": "多模型支持",
+    "description": "实现统一的LLM适配层，支持OpenAI、Claude等主流模型的接入。",
+    "status": "pending",
+    "dependencies": ["infra-001"],
+    "tags": ["LLM", "多模型"]
+  },
+  {
+    "id": "llm-002",
+    "title": "流式输出处理",
+    "description": "实现LLM响应的流式输出，支持SSE、websocket等协议，实时展示AI输出。",
+    "status": "pending",
+    "dependencies": ["llm-001"],
+    "tags": ["LLM", "流式"]
+  },
+  {
+    "id": "llm-003",
+    "title": "工具调用接口",
+    "description": "实现LLM工具调用（Function Calling/Tool Use）协议，支持JSON Schema定义工具。",
+    "status": "pending",
+    "dependencies": ["llm-001"],
+    "tags": ["LLM", "工具调用"]
+  },
+  {
+    "id": "memory-001",
+    "title": "SQLite集成",
+    "description": "集成sqlite-rs，实现记忆数据的持久化存储，数据库初始化与迁移管理。",
+    "status": "pending",
+    "dependencies": ["infra-001"],
+    "tags": ["记忆系统", "存储"]
+  },
+  {
+    "id": "memory-002",
+    "title": "向量扩展集成",
+    "description": "集成sqlite-vec扩展，实现记忆的向量嵌入存储与相似度检索。",
+    "status": "pending",
+    "dependencies": ["memory-001"],
+    "tags": ["记忆系统", "向量检索"]
+  },
+  {
+    "id": "memory-003",
+    "title": "记忆存储与检索",
+    "description": "实现记忆的创建、读取、更新、删除，以及基于向量相似度的语义检索。",
+    "status": "pending",
+    "dependencies": ["memory-001", "memory-002"],
+    "tags": ["记忆系统", "CRUD"]
+  },
+  {
+    "id": "memory-004",
+    "title": "自动上下文注入",
+    "description": "实现基于当前任务自动从记忆系统中检索相关上下文，注入LLM提示词。",
+    "status": "pending",
+    "dependencies": ["memory-003", "llm-003"],
+    "tags": ["记忆系统", "上下文注入"]
+  },
+  {
+    "id": "plugin-001",
+    "title": "WASM运行时",
+    "description": "集成wasmtime作为插件运行时，实现WASM模块的加载、执行、内存管理。",
+    "status": "pending",
+    "dependencies": ["infra-001"],
+    "tags": ["插件系统", "运行时"]
+  },
+  {
+    "id": "plugin-002",
+    "title": "插件接口定义",
+    "description": "定义工具插件、记忆插件、钩子插件的标准接口（WASM接口规范）。",
+    "status": "pending",
+    "dependencies": ["plugin-001"],
+    "tags": ["插件系统", "接口"]
+  },
+  {
+    "id": "plugin-003",
+    "title": "插件发现与加载",
+    "description": "实现插件目录扫描、动态加载、生命周期管理（init/execute/cleanup）。",
+    "status": "pending",
+    "dependencies": ["plugin-001", "plugin-002"],
+    "tags": ["插件系统", "管理"]
+  },
+  {
+    "id": "tool-001",
+    "title": "文件读写工具",
+    "description": "实现基础的本地文件读取、写入、编辑工具，供LLM调用操作文件系统。",
+    "status": "pending",
+    "dependencies": ["plugin-002"],
+    "tags": ["工具插件", "文件系统"]
+  },
+  {
+    "id": "tool-002",
+    "title": "命令执行工具",
+    "description": "实现Shell命令执行工具，支持安全沙箱、超时控制、输出捕获。",
+    "status": "pending",
+    "dependencies": ["plugin-002"],
+    "tags": ["工具插件", "命令执行"]
+  },
+  {
+    "id": "bootstrap-001",
+    "title": "自举验证测试",
+    "description": "编写测试用例，验证工具能够读取自身代码并进行修改，实现自我驱动开发。",
+    "status": "pending",
+    "dependencies": ["tool-001", "tool-002", "harness-004"],
+    "tags": ["自举", "验证"]
+  }
+]
