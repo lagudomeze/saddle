@@ -1,27 +1,7 @@
-use exn::Result;
+use crate::SaddleResult;
 use std::path::Path;
 
-#[derive(Debug)]
-pub struct PluginError {
-    message: String,
-}
-
-impl PluginError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-
-impl std::fmt::Display for PluginError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl std::error::Error for PluginError {}
-
+#[derive(Debug, Default)]
 pub struct PluginRuntime;
 
 impl PluginRuntime {
@@ -29,12 +9,12 @@ impl PluginRuntime {
         Self
     }
 
-    pub fn load_plugin(&self, path: &Path) -> Result<(), PluginError> {
+    pub fn load_plugin(&self, path: &Path) -> SaddleResult<()> {
         let _ = path;
         Ok(())
     }
 
-    pub fn list_plugins(&self) -> Result<Vec<String>, PluginError> {
+    pub fn list_plugins(&self) -> SaddleResult<Vec<String>> {
         Ok(vec![])
     }
 }

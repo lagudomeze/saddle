@@ -16,7 +16,7 @@
 - 常量：SCREAMING_SNAKE_CASE
 
 ### 错误处理
-- 使用 `exn` 库处理错误，参考 `.crush/skill/exn-error/SKILL.md`
+- 使用 `exn` 库处理错误，参考 [.crush/ERROR_STANDARD.md](./.crush/ERROR_STANDARD.md)
 - 避免使用 `anyhow` 或 `thiserror`（丢失调用栈信息）
 
 ### 依赖更新
@@ -31,6 +31,12 @@
 ### 注释要求
 - 公共 API 必须有 `///` 文档注释
 - 复杂逻辑添加 `//` 行注释说明
+
+### 日志与输出规则
+- 使用 `tracing` 进行日志记录（`tracing::info!`, `tracing::error!` 等）
+- 错误信息使用 `eprintln!` 或 `tracing::error!`
+- **禁止在非测试代码中使用 `println!`**
+- 特殊情况需在代码注释中说明理由
 
 ## 目录结构
 

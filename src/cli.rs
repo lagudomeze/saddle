@@ -1,6 +1,8 @@
-use clap::Parser;
+use crate::SaddleResult;
 use crate::harness::{FeatureManager, ProgressTracker};
 use crate::tui::TuiApp;
+use clap::Parser;
+use exn::ResultExt;
 
 #[derive(Parser, Debug)]
 #[command(name = "saddle")]
@@ -11,7 +13,7 @@ pub struct Cli {
     pub verbose: String,
 
     #[command(subcommand)]
-    pub command: Option<Commands>,
+    pub command: Commands,
 }
 
 #[derive(Parser, Debug)]
@@ -43,75 +45,79 @@ pub struct StatusCmd {
 }
 
 impl Cli {
-    pub fn run(&self) -> anyhow::Result<()> {
+    pub fn run(&self) -> SaddleResult<()> {
         match &self.command {
-            Some(Commands::Run(cmd)) => cmd.run(),
-            Some(Commands::Init(cmd)) => cmd.run(),
-            Some(Commands::Status(cmd)) => cmd.run(),
-            None => {
-                println!("Use --help for usage information");
-                Ok(())
-            }
+            Commands::Run(cmd) => cmd.run(),
+            Commands::Init(cmd) => cmd.run(),
+            Commands::Status(cmd) => cmd.run(),
         }
     }
 }
 
 impl RunCmd {
-    pub fn run(&self) -> anyhow::Result<()> {
+    pub fn run(&self) -> SaddleResult<()> {
         let mut app = TuiApp::new();
-        app.run()?;
-        Ok(())
+        app.run()
     }
 }
 
 impl InitCmd {
-    pub fn run(&self) -> anyhow::Result<()> {
-        let fm = FeatureManager::new()?;
-        
+    pub fn run(&self) -> SaddleResult<()> {
+        let fm = FeatureManager::new()
+            .or_raise(|| crate::SaddleError::Feature("Failed to create FeatureManager".into()))?;
+
         if !self.force && fm.load().is_ok() {
-            println!("Project already initialized. Use --force to reinitialize.");
+            tracing::warn!("Project already initialized. Use --force to reinitialize.");
             return Ok(());
         }
-        
+
         let pt = ProgressTracker::new();
-        pt.update("# 进度报告\n\n## 初始化阶段\n\n### 已完成\n- [x] 项目初始化完成\n")?;
-        
-        println!("Project initialized successfully.");
+        pt.update("# 进度报告\n\n## 初始化阶段\n\n### 已完成\n- [x] 项目初始化完成\n")
+            .or_raise(|| crate::SaddleError::Progress("Failed to update progress".into()))?;
+
+        tracing::info!("Project initialized successfully.");
         Ok(())
     }
 }
 
 impl StatusCmd {
-    pub fn run(&self) -> anyhow::Result<()> {
-        let fm = FeatureManager::new()?;
-        let features = fm.load()?;
-        
-        let completed: Vec<_> = features.iter()
+    pub fn run(&self) -> SaddleResult<()> {
+        let fm = FeatureManager::new()
+            .or_raise(|| crate::SaddleError::Feature("Failed to create FeatureManager".into()))?;
+        let features = fm.load()
+            .or_raise(|| crate::SaddleError::Feature("Failed to load features".into()))?;
+
+        let completed: Vec<_> = features
+            .iter()
             .filter(|f| f.status == "completed")
             .collect();
-        let pending: Vec<_> = features.iter()
-            .filter(|f| f.status == "pending")
-            .collect();
-        
-        println!("Project Status");
-        println!("==============");
-        println!("Total features: {}", features.len());
-        println!("Completed: {} ({:.1}%)", completed.len(), 
-            (completed.len() as f64 / features.len() as f64) * 100.0);
-        println!("Pending: {} ({:.1}%)", pending.len(),
-            (pending.len() as f64 / features.len() as f64) * 100.0);
-        
+        let pending: Vec<_> = features.iter().filter(|f| f.status == "pending").collect();
+
+        tracing::info!("Project Status");
+        tracing::info!("==============");
+        tracing::info!("Total features: {}", features.len());
+        tracing::info!(
+            "Completed: {} ({:.1}%)",
+            completed.len(),
+            (completed.len() as f64 / features.len() as f64) * 100.0
+        );
+        tracing::info!(
+            "Pending: {} ({:.1}%)",
+            pending.len(),
+            (pending.len() as f64 / features.len() as f64) * 100.0
+        );
+
         if self.verbose {
-            println!("\nCompleted features:");
+            tracing::info!("\nCompleted features:");
             for f in &completed {
-                println!("  [✓] {} - {}", f.id, f.title);
+                tracing::info!("  [✓] {} - {}", f.id, f.title);
             }
-            println!("\nPending features:");
+            tracing::info!("\nPending features:");
             for f in &pending {
-                println!("  [ ] {} - {}", f.id, f.title);
+                tracing::info!("  [ ] {} - {}", f.id, f.title);
             }
         }
-        
+
         Ok(())
     }
 }

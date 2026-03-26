@@ -1,23 +1,23 @@
-use anyhow::Result;
 use clap::Parser;
-use saddle::{ConfigLoader, init_logging, Cli};
+use exn::ResultExt;
+use saddle::{Cli, ConfigLoader, SaddleResult, SaddleError, init_logging};
 
-fn main() -> Result<()> {
+fn main() -> SaddleResult<()> {
     let cli = Cli::parse();
-    
-    let settings = match ConfigLoader::load() {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("Warning: Config error (using defaults): {}", e);
-            saddle::Settings::default()
-        }
-    };
-    
-    init_logging(&settings)?;
 
-    tracing::info!("Saddle started: {} v{}", settings.app.name, settings.app.version);
+    let settings = ConfigLoader::load().unwrap_or_else(|e| {
+        tracing::warn!("Config error (using defaults): {}", e);
+        saddle::Settings::default()
+    });
 
-    cli.run()?;
-    
-    Ok(())
+    init_logging(&settings)
+        .or_raise(|| SaddleError::Init("Failed to initialize logging".into()))?;
+
+    tracing::info!(
+        "Saddle started: {} v{}",
+        settings.app.name,
+        settings.app.version
+    );
+
+    cli.run()
 }

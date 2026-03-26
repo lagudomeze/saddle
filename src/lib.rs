@@ -1,14 +1,24 @@
 mod cli;
-mod config;
-mod harness;
-mod llm;
-mod memory;
-mod plugins;
-mod tui;
-mod utils;
 
 pub use cli::Cli;
-pub use config::{init_logging, ConfigLoader, Settings, ConfigError, LoggingError};
-pub use harness::{FeatureManager, HandoffGenerator, ProgressTracker};
+
+mod config;
+pub use config::{ConfigLoader, Settings, init_logging};
+
+mod harness;
+pub use harness::{FeatureManager, ProgressTracker, HandoffGenerator};
+
+mod llm;
+mod memory;
 pub use memory::MemoryStore;
+
+mod plugins;
 pub use plugins::PluginRuntime;
+
+mod tui;
+pub use tui::TuiApp;
+
+pub mod utils;
+
+pub use utils::SaddleError;
+pub use utils::SaddleResult;

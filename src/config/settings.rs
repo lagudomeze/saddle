@@ -76,17 +76,9 @@ impl Default for Settings {
             },
             logging: LoggingConfig {
                 level: "info".to_string(),
-                file: Some(log_file_default(&base)),
+                file: Some(format!("{}/logs/saddle.log", base)),
                 format: "json".to_string(),
             },
         }
-    }
-}
-
-fn log_file_default(base: &str) -> String {
-    if cfg!(windows) {
-        "./logs/saddle.log".to_string()
-    } else {
-        format!("{}/logs/saddle.log", base)
     }
 }

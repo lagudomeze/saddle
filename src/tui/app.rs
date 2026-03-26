@@ -1,4 +1,5 @@
-use anyhow::Result;
+use crate::SaddleResult;
+use exn::ResultExt;
 use ratatui::{
     backend::CrosstermBackend,
     widgets::{Block, Borders, Paragraph},
@@ -7,27 +8,6 @@ use ratatui::{
     style::{Style, Color},
 };
 use std::io;
-
-#[derive(Debug)]
-pub struct TuiError {
-    message: String,
-}
-
-impl TuiError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-
-impl std::fmt::Display for TuiError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl std::error::Error for TuiError {}
 
 #[derive(Debug, Clone)]
 pub struct TuiApp {
@@ -45,12 +25,14 @@ impl TuiApp {
         }
     }
 
-    pub fn run(&mut self) -> Result<()> {
+    pub fn run(&mut self) -> SaddleResult<()> {
         let stdout = io::stdout();
         let backend = CrosstermBackend::new(stdout);
-        let mut terminal = Terminal::new(backend)?;
+        let mut terminal = Terminal::new(backend)
+            .or_raise(|| crate::SaddleError::Tui("Failed to create terminal".into()))?;
         
-        terminal.clear()?;
+        terminal.clear()
+            .or_raise(|| crate::SaddleError::Tui("Failed to clear terminal".into()))?;
         self.draw(&mut terminal)?;
         
         loop {
@@ -76,9 +58,10 @@ impl TuiApp {
         Ok(())
     }
 
-    fn read_line(&self) -> Result<String> {
+    fn read_line(&self) -> SaddleResult<String> {
         let mut input = String::new();
-        io::stdin().read_line(&mut input)?;
+        io::stdin().read_line(&mut input)
+            .map_err(|_| crate::SaddleError::Tui("Failed to read input".into()))?;
         Ok(input)
     }
 
@@ -100,7 +83,7 @@ impl TuiApp {
         }
     }
 
-    fn draw(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> Result<()> {
+    fn draw(&self, terminal: &mut Terminal<CrosstermBackend<io::Stdout>>) -> SaddleResult<()> {
         terminal.draw(|f| {
             let area = f.area();
             
@@ -138,7 +121,7 @@ impl TuiApp {
             let status_bar = Paragraph::new(" Press Ctrl+C to exit ")
                 .style(Style::default().fg(Color::DarkGray));
             f.render_widget(status_bar, chunks[2]);
-        })?;
+        }).or_raise(|| crate::SaddleError::Tui("Failed to draw terminal".into()))?;
         
         Ok(())
     }

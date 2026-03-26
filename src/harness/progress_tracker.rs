@@ -1,26 +1,5 @@
-use anyhow::{Context, Result};
-use std::path::Path;
-
-#[derive(Debug)]
-pub struct ProgressError {
-    message: String,
-}
-
-impl ProgressError {
-    pub fn new(message: impl Into<String>) -> Self {
-        Self {
-            message: message.into(),
-        }
-    }
-}
-
-impl std::fmt::Display for ProgressError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl std::error::Error for ProgressError {}
+use crate::SaddleResult;
+use exn::ResultExt;
 
 pub struct ProgressTracker {
     path: std::path::PathBuf,
@@ -29,22 +8,21 @@ pub struct ProgressTracker {
 impl ProgressTracker {
     pub fn new() -> Self {
         Self {
-            path: Path::new("harness/progress.md").into(),
+            path: std::path::Path::new("harness/progress.md").into(),
         }
     }
 
-    pub fn read(&self) -> Result<String> {
+    pub fn read(&self) -> SaddleResult<String> {
         std::fs::read_to_string(&self.path)
-            .context(format!("Failed to read: {:?}", self.path))
+            .or_raise(|| crate::SaddleError::progress(format!("Failed to read: {:?}", self.path)))
     }
 
-    pub fn update(&self, content: &str) -> Result<()> {
+    pub fn update(&self, content: &str) -> SaddleResult<()> {
         std::fs::write(&self.path, content)
-            .context(format!("Failed to write to: {:?}", self.path))?;
-        Ok(())
+            .or_raise(|| crate::SaddleError::progress(format!("Failed to write to: {:?}", self.path)))
     }
 
-    pub fn append(&self, entry: &str) -> Result<()> {
+    pub fn append(&self, entry: &str) -> SaddleResult<()> {
         let current = self.read().unwrap_or_default();
         let updated = format!("{}\n\n{}", current, entry);
         self.update(&updated)
