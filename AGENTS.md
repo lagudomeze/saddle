@@ -40,6 +40,10 @@
 | `src/plugins/` | WASM 插件运行时 |
 | `src/tui/` | TUI 界面 |
 | `src/utils/` | 工具模块 |
+| `.crush/` | Crush 工作目录 |
+| `.crush/skill/` | 技能包目录 |
+| `.crush/agents/` | 子代理配置目录 |
+| `.crush/init/` | 初始化脚本目录 |
 | `harness/` | 项目管理文件（features.json, progress.md, handoff.md） |
 | `plugins/` | 编译后的 .wasm 插件 |
 
