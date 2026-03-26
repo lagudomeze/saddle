@@ -1,5 +1,26 @@
-use std::path::Path;
 use anyhow::{Context, Result};
+use std::path::Path;
+
+#[derive(Debug)]
+pub struct HandoffError {
+    message: String,
+}
+
+impl HandoffError {
+    pub fn new(message: impl Into<String>) -> Self {
+        Self {
+            message: message.into(),
+        }
+    }
+}
+
+impl std::fmt::Display for HandoffError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl std::error::Error for HandoffError {}
 
 pub struct HandoffGenerator {
     path: std::path::PathBuf,
@@ -7,7 +28,9 @@ pub struct HandoffGenerator {
 
 impl HandoffGenerator {
     pub fn new() -> Self {
-        Self { path: Path::new("harness/handoff.md").into() }
+        Self {
+            path: Path::new("harness/handoff.md").into(),
+        }
     }
 
     pub fn generate(&self, completed: &[String], next_steps: &[String], decisions: &[String]) -> Result<()> {
@@ -17,7 +40,8 @@ impl HandoffGenerator {
             Self::format_list(next_steps),
             Self::format_list(decisions)
         );
-        std::fs::write(&self.path, content)?;
+        std::fs::write(&self.path, content)
+            .context(format!("Failed to write to: {:?}", self.path))?;
         Ok(())
     }
 

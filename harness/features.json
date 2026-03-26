@@ -3,7 +3,7 @@
     "id": "infra-001",
     "title": "项目骨架与配置管理",
     "description": "创建Rust项目基础结构，包括Cargo.toml配置、目录组织、配置文件加载与管理、日志系统初始化。",
-    "status": "pending",
+    "status": "completed",
     "dependencies": [],
     "tags": ["基础设施", "配置", "日志"]
   },
@@ -11,7 +11,7 @@
     "id": "cli-001",
     "title": "CLI命令解析",
     "description": "实现命令行参数解析，支持子命令结构，集成clap库处理用户输入。",
-    "status": "pending",
+    "status": "completed",
     "dependencies": ["infra-001"],
     "tags": ["CLI", "用户交互"]
   },
@@ -19,7 +19,7 @@
     "id": "cli-002",
     "title": "TUI交互界面",
     "description": "基于ratatui构建终端用户界面，实现交互式命令输入、输出展示、进度显示等功能。",
-    "status": "pending",
+    "status": "completed",
     "dependencies": ["cli-001"],
     "tags": ["TUI", "用户交互"]
   },

@@ -1,18 +1,22 @@
 # 进度报告
 
-## 初始化阶段 (v0.1.0)
+## v0.1.0 阶段
 
 ### 已完成
-- [x] 项目骨架搭建完成
-- [x] 功能清单 `harness/features.json` 生成（21个功能点）
+- [x] 项目骨架搭建完成 (infra-001)
+- [x] 功能清单 `harness/features.json` 生成（20个功能点）
 - [x] 源代码模块结构创建
 - [x] Cargo.toml 依赖配置
+- [x] CLI命令解析实现 (cli-001)
+  - `saddle status` - 显示项目状态
+  - `saddle run` - 运行主程序
+  - `saddle init` - 初始化项目
+- [x] TUI交互界面实现 (cli-002)
+  - `saddle run` 启动ratatui终端界面
+  - 支持help/status/list/run/quit命令
 
 ### 当前状态
-项目骨架已就绪，等待编码代理实现功能。
+CLI和TUI基础功能已就绪。
 
 ### 下一步
-开始实现 `infra-001`（项目骨架与配置管理），包括：
-- 配置文件加载与管理
-- 日志系统初始化
-- 错误处理机制完善
+继续实现 harness-001 (功能清单管理器)，完善FeatureManager功能。

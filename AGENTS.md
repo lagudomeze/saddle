@@ -16,9 +16,12 @@
 - 常量：SCREAMING_SNAKE_CASE
 
 ### 错误处理
-- 使用 `anyhow::Result<T>` 作为主要错误类型
-- 库代码避免使用 `unwrap()`，使用 `?` 运算符传播错误
-- 关键错误使用自定义错误枚举（如 `SaddleError`）
+- 使用 `exn` 库处理错误，参考 `.crush/skill/exn-error/SKILL.md`
+- 避免使用 `anyhow` 或 `thiserror`（丢失调用栈信息）
+
+### 依赖更新
+- 使用 `cargo upgrade` 更新依赖版本（先 dry-run 确认）
+- 依赖版本约束使用精确版本或 minor 版本范围（如 `version = "1"`）
 
 ### 类型使用
 - 充分利用 Rust 类型系统
