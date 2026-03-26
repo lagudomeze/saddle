@@ -27,7 +27,7 @@
     "id": "harness-001",
     "title": "功能清单管理器",
     "description": "实现harness/features.json的读取、写入、解析，功能项的增删改查接口。",
-    "status": "pending",
+    "status": "completed",
     "dependencies": ["infra-001"],
     "tags": ["Harness核心", "功能管理"]
   },

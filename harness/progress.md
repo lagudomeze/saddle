@@ -14,9 +14,15 @@
 - [x] TUI交互界面实现 (cli-002)
   - `saddle run` 启动ratatui终端界面
   - 支持help/status/list/run/quit命令
+- [x] 功能清单管理器实现 (harness-001)
+  - FeatureManager 实现完整的CRUD接口
+  - load/save/add_feature/remove_feature/update_feature/get_feature
+  - get_pending_features/get_completed_features
+  - mark_completed
+  - 完整的单元测试覆盖
 
 ### 当前状态
-CLI和TUI基础功能已就绪。
+Harness核心模块已就绪，FeatureManager完整实现并通过测试。
 
 ### 下一步
-继续实现 harness-001 (功能清单管理器)，完善FeatureManager功能。
+继续实现 harness-002 (进度跟踪器) 和 harness-003 (交接报告生成器)。

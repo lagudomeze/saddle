@@ -1,5 +1,5 @@
 use crate::SaddleResult;
-use exn::{Result, ResultExt};
+use exn::ResultExt;
 use std::path::Path;
 
 #[derive(Debug, Default)]
