@@ -7,6 +7,7 @@ edition = "2024"
 # CLI & TUI
 clap = { version = "4", features = ["derive"] }
 ratatui = "0.28"
+crossterm = "0.28"
 tokio = { version = "1", features = ["full"] }
 
 # LLM
