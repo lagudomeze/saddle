@@ -43,7 +43,7 @@
     "id": "llm-002",
     "title": "多模型支持",
     "description": "统一的LLM适配层，支持OpenAI/Claude等主流模型",
-    "status": "pending",
+    "status": "completed",
     "dependencies": ["llm-001"],
     "tags": ["LLM"]
   },

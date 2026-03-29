@@ -9,7 +9,7 @@ mod harness;
 pub use harness::{FeatureManager, ProgressTracker, HandoffGenerator};
 
 mod llm;
-pub use llm::{LlmClient, LlmAdapter, AgentBuilder};
+pub use llm::{LlmClient, LlmAdapter, AgentBuilder, ProviderType, ModelConfig, ProviderFactory, OpenAiProvider};
 
 mod agent;
 pub use agent::{AgentExecutor, presets, ToolDefinition};
