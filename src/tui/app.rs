@@ -139,14 +139,12 @@ impl TuiApp {
                 self.scroll_offset = (self.scroll_offset + height).min(self.output_lines.len().saturating_sub(1));
             },
             KeyCode::Home => {
-                if event::read().map(|e| matches!(e, Event::Key(k) if k.modifiers.contains(crossterm::event::KeyModifiers::CONTROL))).unwrap_or(false) {
-                    self.scroll_offset = 0;
-                }
+                // Ctrl+Home scrolls to top
+                self.scroll_offset = 0;
             },
             KeyCode::End => {
-                if event::read().map(|e| matches!(e, Event::Key(k) if k.modifiers.contains(crossterm::event::KeyModifiers::CONTROL))).unwrap_or(false) {
-                    self.scroll_offset = self.output_lines.len().saturating_sub(1);
-                }
+                // Ctrl+End scrolls to bottom
+                self.scroll_offset = self.output_lines.len().saturating_sub(1);
             },
             KeyCode::Esc => {
                 if self.input_buffer.is_empty() {
@@ -158,6 +156,18 @@ impl TuiApp {
     }
 
     fn execute_command(&mut self, input: &str) {
+        let lower = input.trim().to_lowercase();
+
+        // Add to history first
+        self.command_history.push(input.to_string());
+
+        // Handle quit/exit commands
+        if lower == "quit" || lower == "exit" || lower == "q" {
+            self.output_lines.push("Goodbye!".to_string());
+            self.should_quit = true;
+            return;
+        }
+
         self.output_lines.push(format!("❯ {}", input));
         let response = self.process_input(input);
         if let Some(response_text) = response {
@@ -177,11 +187,11 @@ impl TuiApp {
 
     fn process_input(&self, input: &str) -> Option<String> {
         match input.trim().to_lowercase().as_str() {
-            "help" => Some(self.help_text()),
+            "help" | "?" => Some(self.help_text()),
             "status" => Some("Use 'saddle status' command for detailed status.".to_string()),
             "list" => Some("Use 'saddle status --verbose' for full feature list.".to_string()),
             "run" => Some("Starting application...".to_string()),
-            "clear" => None,
+            "clear" | "cls" => None,
             "theme" | "themes" => Some("Available themes: default (nord), dracula, monokai".to_string()),
             _ => Some(format!("Unknown command: {}\nType 'help' for available commands.", input.trim())),
         }
@@ -297,10 +307,10 @@ Keyboard shortcuts:
         f.render_widget(input, area);
 
         if area.width > self.input_buffer.len() as u16 + 2 {
-            f.set_cursor(
+            f.set_cursor_position((
                 area.x + self.input_buffer.len() as u16 + 1,
                 area.y + 1,
-            );
+            ));
         }
     }
 
@@ -318,5 +328,151 @@ Keyboard shortcuts:
                 .borders(Borders::ALL)
                 .border_style(self.theme.border));
         f.render_widget(status, area);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn create_test_app() -> TuiApp {
+        TuiApp::new()
+    }
+
+    #[test]
+    fn test_new_app_initializes_correctly() {
+        let app = create_test_app();
+        assert!(!app.should_quit);
+        assert_eq!(app.output_lines.len(), 3); // Welcome message + help hint + empty line
+        assert!(app.input_buffer.is_empty());
+        assert!(app.command_history.is_empty());
+    }
+
+    #[test]
+    fn test_help_command_returns_help_text() {
+        let app = create_test_app();
+        let result = app.process_input("help");
+        assert!(result.is_some());
+        let text = result.unwrap();
+        assert!(text.contains("Available commands"));
+        assert!(text.contains("help"));
+        assert!(text.contains("quit"));
+    }
+
+    #[test]
+    fn test_question_mark_is_alias_for_help() {
+        let app = create_test_app();
+        let result = app.process_input("?");
+        assert!(result.is_some());
+        assert!(result.unwrap().contains("Available commands"));
+    }
+
+    #[test]
+    fn test_unknown_command_returns_error() {
+        let app = create_test_app();
+        let result = app.process_input("foobar");
+        assert!(result.is_some());
+        let text = result.unwrap();
+        assert!(text.contains("Unknown command"));
+        assert!(text.contains("foobar"));
+    }
+
+    #[test]
+    fn test_clear_command_returns_none() {
+        let app = create_test_app();
+        let result = app.process_input("clear");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_cls_is_alias_for_clear() {
+        let app = create_test_app();
+        let result = app.process_input("cls");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_case_insensitive_help() {
+        let app = create_test_app();
+        assert!(app.process_input("HELP").is_some());
+        assert!(app.process_input("Help").is_some());
+        assert!(app.process_input("hElP").is_some());
+    }
+
+    #[test]
+    fn test_quit_command_handled_by_execute() {
+        // quit/exit are handled in execute_command, not process_input
+        let app = create_test_app();
+        // process_input doesn't recognize quit, so it returns error message
+        let result = app.process_input("quit");
+        assert!(result.is_some());
+        assert!(result.unwrap().contains("Unknown command"));
+    }
+
+    #[test]
+    fn test_quit_sets_should_quit() {
+        let mut app = create_test_app();
+        assert!(!app.should_quit);
+        app.execute_command("quit");
+        assert!(app.should_quit);
+    }
+
+    #[test]
+    fn test_exit_sets_should_quit() {
+        let mut app = create_test_app();
+        assert!(!app.should_quit);
+        app.execute_command("exit");
+        assert!(app.should_quit);
+    }
+
+    #[test]
+    fn test_q_sets_should_quit() {
+        let mut app = create_test_app();
+        assert!(!app.should_quit);
+        app.execute_command("q");
+        assert!(app.should_quit);
+    }
+
+    #[test]
+    fn test_execute_command_adds_to_history() {
+        let mut app = create_test_app();
+        assert!(app.command_history.is_empty());
+        app.execute_command("help");
+        assert_eq!(app.command_history.len(), 1);
+        assert_eq!(app.command_history[0], "help");
+    }
+
+    #[test]
+    fn test_execute_command_adds_output() {
+        let mut app = create_test_app();
+        let initial_lines = app.output_lines.len();
+        app.execute_command("help");
+        // Should have: prompt line + help text lines + empty line
+        assert!(app.output_lines.len() > initial_lines);
+    }
+
+    #[test]
+    fn test_theme_command_shows_themes() {
+        let app = create_test_app();
+        let result = app.process_input("theme");
+        assert!(result.is_some());
+        let text = result.unwrap();
+        assert!(text.contains("nord") || text.contains("dracula") || text.contains("monokai"));
+    }
+
+    #[test]
+    fn test_status_command_returns_info() {
+        let app = create_test_app();
+        let result = app.process_input("status");
+        assert!(result.is_some());
+        assert!(result.unwrap().contains("saddle status"));
+    }
+
+    #[test]
+    fn test_list_command_returns_info() {
+        let app = create_test_app();
+        let result = app.process_input("list");
+        assert!(result.is_some());
+        assert!(result.unwrap().contains("saddle status"));
     }
 }
