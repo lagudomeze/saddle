@@ -2,35 +2,65 @@
 
 ## 已完成工作
 
-- 创建完整的 Rust 项目骨架
-- 配置 Cargo.toml（ratatui, tokio, rusqlite, wasmtime 等依赖）
-- 生成 `harness/features.json` 功能清单（21个功能点，覆盖7个模块）
-- 创建源代码目录结构和占位模块：
-  - `src/cli.rs` - CLI参数解析
-  - `src/harness/` - 功能清单管理器、进度跟踪器、交接报告生成器
-  - `src/llm/` - LLM适配层
-  - `src/memory/` - SQLite记忆存储
-  - `src/plugins/` - WASM插件运行时
-  - `src/tui/` - TUI界面框架
-  - `src/utils/` - 工具模块
-- 生成 `README.md` 项目说明
+### 核心框架 (infra-001, cli-001, cli-002, harness-core)
+- Rust项目骨架：Cargo.toml, main.rs, lib.rs
+- CLI命令：run/init/status 子命令
+- TUI界面：ratatui + 主题支持（nord/dracula/monokai）
+- Harness核心：FeatureManager/ProgressTracker/HandoffGenerator
 
-## 下一步计划
+### LLM集成 (llm-001)
+- rig-core v0.33 Responses API 集成
+- LlmClient + AgentBuilder fluent API
+- AgentExecutor 封装
+- 预置提示词：assistant, code_assistant, researcher, critic
 
-1. 实现 `infra-001`（项目骨架与配置管理）- 完善日志系统、配置加载
-2. 实现 `cli-001`（CLI命令解析）- 完善clap命令结构
-3. 实现 `harness-001`（功能清单管理器）- 连接 features.json
+### Harness工程化增强（规划中）
+- **harness-linter**: 架构约束Linter（依赖规则编码为Linter）
+- **harness-loop-detect**: 死循环检测（防止doom loop）
+- **harness-verify-loop**: 强制验证循环（Plan-Build-Verify-Fix）
+- **harness-review**: Agent互审机制（A写B审人类只做架构决策）
+- **harness-self-repair**: 自修复闭环（定期清洁+熵减）
 
 ## 技术决策
 
-1. **插件运行时**：选择 `wasmtime` 作为 WASM 运行时
-2. **数据库**：使用 `rusqlite` + `bundled` SQLite，支持 sqlite-vec 扩展
-3. **TUI框架**：基于 `ratatui` 构建
-4. **错误处理**：使用 `anyhow` 简化错误传播
-5. **异步运行时**：统一使用 `tokio`
+1. **插件运行时**: wasmtime
+2. **数据库**: rusqlite + bundled SQLite（未来支持 sqlite-vec）
+3. **TUI框架**: ratatui
+4. **错误处理**: exn + SaddleError 枚举（不用 anyhow/thiserror）
+5. **异步运行时**: tokio（统一）
+6. **LLM框架**: rig-core v0.33
+
+## 依赖关系
+
+```
+Phase 1 (已完成):
+  infra-001 → cli-001 → cli-002
+             ↘ harness-core
+
+Phase 2 (LLM):
+  llm-001 → llm-002 / llm-003 / llm-004
+
+Phase 3 (Memory):
+  infra-001 → memory-001 → memory-002 → memory-003(依赖llm-004)
+
+Phase 4 (Plugin):
+  infra-001 → plugin-001 → plugin-002 → plugin-003
+
+Phase 5 (Tool & Bootstrap):
+  plugin-002 → tool-001 / tool-002
+  tool-001 + tool-002 + memory-003 → bootstrap-001
+
+Phase 6 (Harness工程化):
+  harness-core + cli-001 → harness-linter
+  harness-core → harness-loop-detect
+  harness-core + llm-001 → harness-verify-loop
+  harness-verify-loop + llm-001 → harness-review
+  harness-loop-detect + harness-verify-loop → harness-self-repair
+```
 
 ## 注意事项
 
-- Harness 目录（`harness/`）用于项目管理和代理协作，非运行时数据
-- 功能清单（`features.json`）是开发驱动的核心，需保持 JSON 格式有效
-- 所有写入操作应使用原子操作（如写临时文件再 rename）
+- features.json 是开发驱动的核心，需保持 JSON 格式有效
+- 所有写入操作应使用原子操作（写临时文件再 rename）
+- WASM 插件注意与宿主之间的类型传递
+- Harness工程化组件相互依赖，需按顺序实现

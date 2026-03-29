@@ -6,6 +6,11 @@
       "ls",
       "grep",
       "edit",
+      "minmax",
+      "write",
+      "multiedit",
+      "bash",
+      "agentic_fetch",
       "mcp_context7_get-library-doc"
     ]
   },

@@ -71,6 +71,10 @@ impl SaddleError {
         SaddleError::Init(msg.into())
     }
 
+    pub fn llm(msg: impl Into<String>) -> Self {
+        SaddleError::Llm(msg.into())
+    }
+
     pub fn io(e: std::io::Error) -> Self {
         SaddleError::Io(e)
     }

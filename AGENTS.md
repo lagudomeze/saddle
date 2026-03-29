@@ -44,7 +44,8 @@
 |------|------|
 | `src/` | 源代码 |
 | `src/harness/` | Harness 核心：功能清单、进度、交接 |
-| `src/llm/` | LLM 适配层 |
+| `src/llm/` | LLM 适配层（基于rig-core） |
+| `src/agent/` | 可复用Agent逻辑（presets、executor） |
 | `src/memory/` | SQLite 记忆存储 |
 | `src/plugins/` | WASM 插件运行时 |
 | `src/tui/` | TUI 界面 |
@@ -88,3 +89,35 @@ cargo fmt          # 格式化
 - `harness-*` 模块之间有依赖链
 - `memory-001` 是 `memory-002` 的基础
 - `plugin-001` 是 `plugin-002`、`plugin-003` 的基础
+- `llm-001` (rig-core) 是 `llm-001b`、`llm-002`、`llm-003` 的基础
+
+## LLM/Agent 模块 (v0.33.0)
+
+### 核心类型
+
+| 类型 | 位置 | 用途 |
+|------|------|------|
+| `LlmClient` | `src/llm/client.rs` | rig openai客户端封装 |
+| `AgentBuilder` | `src/llm/client.rs` | fluent API构建Agent |
+| `AgentExecutor` | `src/agent/mod.rs` | Agent执行器封装 |
+| `presets::*` | `src/agent/mod.rs` | 预置系统提示词 |
+
+### 使用示例
+
+```rust
+use saddle::{LlmClient, AgentExecutor, presets};
+
+let client = LlmClient::new(Some(api_key), None, "gpt-4".to_string()).await?;
+let agent = client.agent()
+    .preamble(presets::code_assistant_system())
+    .build();
+let executor = AgentExecutor::new(agent);
+let response = executor.prompt("Explain closures").await?;
+```
+
+### 预置提示词
+
+- `presets::assistant_system()` - 通用助手
+- `presets::code_assistant_system()` - 代码助手
+- `presets::researcher_system()` - 研究员
+- `presets::critic_system()` - 评审员

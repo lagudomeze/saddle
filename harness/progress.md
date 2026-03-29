@@ -1,28 +1,41 @@
 # 进度报告
 
-## v0.1.0 阶段
+## 当前阶段：核心框架完成，Harness工程化增强
 
 ### 已完成
-- [x] 项目骨架搭建完成 (infra-001)
-- [x] 功能清单 `harness/features.json` 生成（20个功能点）
-- [x] 源代码模块结构创建
-- [x] Cargo.toml 依赖配置
-- [x] CLI命令解析实现 (cli-001)
-  - `saddle status` - 显示项目状态
-  - `saddle run` - 运行主程序
-  - `saddle init` - 初始化项目
-- [x] TUI交互界面实现 (cli-002)
-  - `saddle run` 启动ratatui终端界面
-  - 支持help/status/list/run/quit命令
-- [x] 功能清单管理器实现 (harness-001)
-  - FeatureManager 实现完整的CRUD接口
-  - load/save/add_feature/remove_feature/update_feature/get_feature
-  - get_pending_features/get_completed_features
-  - mark_completed
-  - 完整的单元测试覆盖
+- [x] infra-001: 项目骨架搭建（Cargo.toml, main.rs, lib.rs, 配置系统）
+- [x] cli-001: CLI命令解析（clap子命令：run/init/status）
+- [x] cli-002: TUI交互界面（ratatui，支持help/status/list/run/quit）
+- [x] harness-core: Harness核心模块（FeatureManager/ProgressTracker/HandoffGenerator）
+- [x] llm-001: LLM框架集成（rig-core v0.33, LlmClient, AgentBuilder, presets）
+
+### Harness工程化增强（新增）
+- ⏳ harness-linter: 架构约束Linter
+- ⏳ harness-loop-detect: 死循环检测
+- ⏳ harness-verify-loop: 强制验证循环
+- ⏳ harness-review: Agent互审机制
+- ⏳ harness-self-repair: 自修复闭环
 
 ### 当前状态
-Harness核心模块已就绪，FeatureManager完整实现并通过测试。
+核心框架 + LLM集成完成。进度：5/22 (22.7%)
 
-### 下一步
-继续实现 harness-002 (进度跟踪器) 和 harness-003 (交接报告生成器)。
+### 下一步计划
+1. llm-002: 多模型支持（统一的LLM适配层）
+2. llm-003: 流式输出处理
+3. llm-004: 工具调用接口
+4. memory-001/002/003: 记忆系统
+5. plugin-001/002/003: 插件系统
+6. tool-001/002: 工具集
+7. harness-linter: 架构约束Linter
+
+### 依赖关系提醒
+```
+harness-linter → harness-core + cli-001
+harness-loop-detect → harness-core
+harness-verify-loop → harness-core + llm-001
+harness-review → harness-verify-loop + llm-001
+harness-self-repair → harness-loop-detect + harness-verify-loop
+
+memory-003 → memory-002 + llm-004
+bootstrap-001 → tool-001 + tool-002 + memory-003
+```

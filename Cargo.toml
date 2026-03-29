@@ -6,24 +6,25 @@ edition = "2024"
 [dependencies]
 # CLI & TUI
 clap = { version = "4", features = ["derive"] }
-ratatui = "0.28"
-crossterm = "0.28"
+ratatui = "0.30"
+crossterm = "0.29"
 tokio = { version = "1", features = ["full"] }
 
 # LLM
-reqwest = { version = "0.12", features = ["json", "stream"] }
+rig-core = "0.33"
+reqwest = { version = "0.13", features = ["json", "stream"] }
 
 # Memory
-rusqlite = { version = "0.32", features = ["bundled"] }
+rusqlite = { version = "0.39", features = ["bundled"] }
 
 # Plugin (WASM)
-wasmtime = "25"
+wasmtime = "43"
 
 # Config & Logging
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-toml = "0.8"
-dirs = "5"
+toml = "1.1"
+dirs = "6"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 exn = "0.3"

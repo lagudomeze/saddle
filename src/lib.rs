@@ -9,6 +9,11 @@ mod harness;
 pub use harness::{FeatureManager, ProgressTracker, HandoffGenerator};
 
 mod llm;
+pub use llm::{LlmClient, LlmAdapter, AgentBuilder};
+
+mod agent;
+pub use agent::{AgentExecutor, presets, ToolDefinition};
+
 mod memory;
 pub use memory::MemoryStore;
 
