@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo build:*)",
+      "Bash(cargo test:*)",
+      "Bash(cargo run:*)",
+      "mcp__MiniMax__web_search",
+      "WebFetch(domain:zhuanlan.zhihu.com)",
+      "WebFetch(domain:blog.csdn.net)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  },
+  "outputStyle": "Explanatory"
+}
