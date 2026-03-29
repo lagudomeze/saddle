@@ -251,10 +251,19 @@ Keyboard shortcuts:
     }
 
     fn draw_output(&self, f: &mut ratatui::Frame, area: ratatui::layout::Rect) {
+        // Calculate visible range, ensuring we show content
+        let total_lines = self.output_lines.len();
+        let visible_count = area.height.saturating_sub(2) as usize; // subtract 2 for borders
+        let start_idx = if total_lines > visible_count {
+            total_lines - visible_count
+        } else {
+            0
+        };
+
         let visible_lines: Vec<ListItem> = self.output_lines
             .iter()
-            .skip(self.scroll_offset)
-            .take(area.height as usize)
+            .skip(start_idx)
+            .take(visible_count)
             .map(|line| {
                 let (style, content) = self.style_output_line(line);
                 ListItem::new(Text::from(Span::styled(content, style)))
